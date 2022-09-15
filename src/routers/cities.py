@@ -16,9 +16,9 @@ def create_city(city: CityModel):
     if not check.check_existing(city):
         raise HTTPException(status_code=400, detail='Параметр city должен быть существующим городом')
 
-    city_object = Session().query(City).filter(City.name == city.capitalize()).first()
+    city_object = Session().query(City).filter(City.name == city.name.capitalize()).first()
     if city_object is None:
-        city_object = City(name=city.capitalize())
+        city_object = City(name=city.name.capitalize())
         s = Session()
         s.add(city_object)
         s.commit()

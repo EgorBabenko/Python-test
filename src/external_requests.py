@@ -91,7 +91,7 @@ class CheckCityExisting():
         """
         url = 'https://api.openweathermap.org/data/2.5/weather'
         url += '?units=metric'
-        url += '&q=' + city
+        url += '&q=' + city.name
         url += '&appid=' + WEATHER_API_KEY
         return url
 
