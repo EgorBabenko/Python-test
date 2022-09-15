@@ -3,6 +3,7 @@ from routers.cities import cities_router
 from routers.users import users_router
 from routers.picnics import picnics_router
 
+
 app = FastAPI()
 
 app.include_router(cities_router)

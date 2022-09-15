@@ -1,12 +1,13 @@
 import datetime as dt
 from fastapi import APIRouter, Query, HTTPException
 from database import Session, Picnic, PicnicRegistration, City, User
-from models import RegisterPicnicModel, PicnicModel, UserPicnicRegistration
+from models import RegisterPicnicModel, PicnicModel, UserPicnicRegistration, UserPicnicRegistrationOutput, PicnicOutput
+from pydantic.class_validators import List
 
 picnics_router = APIRouter(prefix='/picnics')
 
 
-@picnics_router.get('/', summary='All Picnics', tags=['picnic'])
+@picnics_router.get('/', summary='Список пикников', tags=['picnic'], response_model=List[PicnicOutput])
 def all_picnics(datetime: dt.datetime = Query(default=None,
                                               description='Время пикника (по умолчанию не задано)'),
                 past: bool = Query(default=True,
@@ -45,8 +46,11 @@ def all_picnics(datetime: dt.datetime = Query(default=None,
     ]
 
 
-@picnics_router.post('/', summary='Picnic Add', tags=['picnic'])
+@picnics_router.post('/', summary='Добавление пикника', tags=['picnic'], response_model=PicnicModel)
 def picnic_add(picnic: RegisterPicnicModel):
+    """
+    Добавление нового пикника
+    """
     session = Session()
     # Проверка существования города
     city = session.query(City).filter(City.id == picnic.city_id).first()
@@ -65,8 +69,11 @@ def picnic_add(picnic: RegisterPicnicModel):
     return PicnicModel.from_orm(picnic_object)
 
 
-@picnics_router.post('/usersignup/', summary='Picnic Registration', tags=['picnic'])
+@picnics_router.post('/usersignup/', summary='Регистрация на пикник', tags=['picnic'], response_model=UserPicnicRegistrationOutput)
 def register_to_picnic(data: UserPicnicRegistration):
+    """
+    Регистрация пользователя на пикник
+    """
     session = Session()
     user = session.query(User).filter(User.id == data.user_id).first()
 

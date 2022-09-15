@@ -6,13 +6,13 @@ from database import Session, User
 users_router = APIRouter(prefix='/users')
 
 
-@users_router.get('/', summary='')
+@users_router.get('/', summary='Список пользователей', tags=['users'], response_model=UserModel)
 def users_list(min_age: int = Query(description='Минимальный возраст',
                                     default=None),
                max_age: int = Query(description='Максимальный возраст',
                                     default=None),
-               offset: int = 0,
-               limit: int = 20):
+               offset: int = Query(description='Пропуск в выдаче', default=0),
+               limit: int = Query(description='Лимит выдачи', default=20)):
     """
     Список пользователей
     """
@@ -33,7 +33,7 @@ def users_list(min_age: int = Query(description='Минимальный возр
     } for user in users]
 
 
-@users_router.post('/', summary='CreateUser', response_model=UserModel)
+@users_router.post('/', summary='Создание пользователя', response_model=UserModel, tags=['users'])
 def register_user(user: RegisterUserRequest):
     """
     Регистрация пользователя

@@ -1,14 +1,16 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Body, Response
 from external_requests import CheckCityExisting
 from database import Session, City
-from models import CityModel
-
+from models import CityModel, CityModelOutput
+from pydantic.class_validators import List
 
 cities_router = APIRouter(prefix='/cities')
 
 
-@cities_router.post('/', summary='Create City',
-                    description='Создание города по его названию')
+@cities_router.post('/', summary='Добавление города',
+                    description='Создание города по его названию',
+                    tags=['cities'],
+                    response_model=CityModelOutput)
 def create_city(city: CityModel):
     if city is None:
         raise HTTPException(status_code=400, detail='Параметр city должен быть указан')
@@ -29,10 +31,10 @@ def create_city(city: CityModel):
     return {'id': city_object.id, 'name': city_object.name, 'weather': city_object.weather}
 
 
-@cities_router.get('/', summary='Get Cities')
-def cities_list(q: str = Query(description="Название города", default=None),
-                offset: int = 0,
-                limit: int = 20):
+@cities_router.get('/', summary='Список городов', tags=['cities'], response_model=List[CityModelOutput])
+def cities_list(q: str = Query(description="Поиск города по названию", default=None),
+                offset: int = Query(description='Пропуск городов в выдаче', default=0),
+                limit: int = Query(description='Лимит выдачи', default=20),):
     """
     Получение списка городов
     """
