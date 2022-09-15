@@ -37,3 +37,7 @@ class PicnicModel(BaseModel):
 class UserPicnicRegistration(BaseModel):
     user_id: int
     picnic_id: int
+
+
+class CityModel(BaseModel):
+    name: str

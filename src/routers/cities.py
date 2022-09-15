@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from external_requests import CheckCityExisting
 from database import Session, City
+from models import CityModel
 
 
 cities_router = APIRouter(prefix='/cities')
@@ -8,7 +9,7 @@ cities_router = APIRouter(prefix='/cities')
 
 @cities_router.post('/', summary='Create City',
                     description='Создание города по его названию')
-def create_city(city: str = Query(description="Название города", default=None)):
+def create_city(city: CityModel):
     if city is None:
         raise HTTPException(status_code=400, detail='Параметр city должен быть указан')
     check = CheckCityExisting()

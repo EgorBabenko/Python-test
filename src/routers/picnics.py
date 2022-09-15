@@ -14,13 +14,21 @@ def all_picnics(datetime: dt.datetime = Query(default=None,
     """
     Список всех пикников
     """
-    picnics = Session().query(Picnic)
+    session = Session()
+    picnics = session.query(Picnic)
     if datetime is not None:
         picnics = picnics.filter(Picnic.time == datetime)
     if not past:
         picnics = picnics.filter(Picnic.time >= dt.datetime.now())
 
-    return [PicnicModel.from_orm(picnic_object) for picnic_object in picnics]
+    return [
+        {
+            'id': picnic.id,
+            'city_id': picnic.city_id,
+            'city_name': session.query(City).filter(
+                City.id == picnic.city_id).first().name()
+        } for picnic in picnics
+    ]
 
 
 @picnics_router.post('/', summary='Picnic Add', tags=['picnic'])
