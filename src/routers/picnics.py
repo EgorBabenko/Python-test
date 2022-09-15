@@ -10,7 +10,9 @@ picnics_router = APIRouter(prefix='/picnics')
 def all_picnics(datetime: dt.datetime = Query(default=None,
                                               description='Время пикника (по умолчанию не задано)'),
                 past: bool = Query(default=True,
-                                   description='Включая уже прошедшие пикники')):
+                                   description='Включая уже прошедшие пикники'),
+                offset: int = 0,
+                limit: int = 20):
     """
     Список всех пикников
     """
@@ -20,6 +22,8 @@ def all_picnics(datetime: dt.datetime = Query(default=None,
         picnics = picnics.filter(Picnic.time == datetime)
     if not past:
         picnics = picnics.filter(Picnic.time >= dt.datetime.now())
+
+    picnics = picnics.offset(offset).limit(limit)
 
     return [
         {

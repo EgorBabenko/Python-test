@@ -30,16 +30,18 @@ def create_city(city: CityModel):
 
 
 @cities_router.get('/', summary='Get Cities')
-def cities_list(q: str = Query(description="Название города", default=None)):
+def cities_list(q: str = Query(description="Название города", default=None),
+                offset: int = 0,
+                limit: int = 20):
     """
     Получение списка городов
     """
     session = Session()
     # реализация поиска по частичному/полному вхождению
     if q:
-        cities = session.query(City).filter(City.name.contains(q)).all()
+        cities = session.query(City).filter(City.name.contains(q)).offset(offset).limit(limit).all()
     else:
-        cities = session.query(City).all()
+        cities = session.query(City).offset(offset).limit(limit).all()
 
     return [{'id': city.id, 'name': city.name, 'weather': city.weather} for city in cities]
 

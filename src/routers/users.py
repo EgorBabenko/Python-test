@@ -10,7 +10,9 @@ users_router = APIRouter(prefix='/users')
 def users_list(min_age: int = Query(description='Минимальный возраст',
                                     default=None),
                max_age: int = Query(description='Максимальный возраст',
-                                    default=None)):
+                                    default=None),
+               offset: int = 0,
+               limit: int = 20):
     """
     Список пользователей
     """
@@ -18,9 +20,11 @@ def users_list(min_age: int = Query(description='Минимальный возр
     min_age = min_age if min_age else 0
     if max_age:
         users = session.query(User).filter(User.age <= max_age,
-                                           User.age >= min_age).all()
+                                           User.age >= min_age)
     else:
-        users = session.query(User).filter(User.age >= min_age).all()
+        users = session.query(User).filter(User.age >= min_age)
+
+    users = users.offset(offset).limit(limit).all()
     return [{
         'id': user.id,
         'name': user.name,
