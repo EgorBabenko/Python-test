@@ -31,7 +31,12 @@ def cities_list(q: str = Query(description="Название города", defa
     """
     Получение списка городов
     """
-    cities = Session().query(City).all()
+    session = Session()
+    # реализация поиска по частичному/полному вхождению
+    if q:
+        cities = session.query(City).filter(City.name.contains(q)).all()
+    else:
+        cities = session.query(City).all()
 
     return [{'id': city.id, 'name': city.name, 'weather': city.weather} for city in cities]
 
