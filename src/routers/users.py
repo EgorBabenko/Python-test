@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 from models import RegisterUserRequest, UserModel
 from database import Session, User
@@ -7,11 +7,20 @@ users_router = APIRouter(prefix='/users')
 
 
 @users_router.get('/', summary='')
-def users_list():
+def users_list(min_age: int = Query(description='Минимальный возраст',
+                                    default=None),
+               max_age: int = Query(description='Максимальный возраст',
+                                    default=None)):
     """
     Список пользователей
     """
-    users = Session().query(User).all()
+    session = Session()
+    min_age = min_age if min_age else 0
+    if max_age:
+        users = session.query(User).filter(User.age <= max_age,
+                                           User.age >= min_age).all()
+    else:
+        users = session.query(User).filter(User.age >= min_age).all()
     return [{
         'id': user.id,
         'name': user.name,

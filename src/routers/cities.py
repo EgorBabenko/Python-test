@@ -13,11 +13,14 @@ def create_city(city: CityModel):
     if city is None:
         raise HTTPException(status_code=400, detail='Параметр city должен быть указан')
     check = CheckCityExisting()
-    if not check.check_existing(city):
+    if not check.check_existing(city.name):
         raise HTTPException(status_code=400, detail='Параметр city должен быть существующим городом')
 
     city_object = Session().query(City).filter(City.name == city.name.capitalize()).first()
-    if city_object is None:
+    if city_object:
+        raise HTTPException(status_code=400,
+                            detail='Такой город уже в базе')
+    else:
         city_object = City(name=city.name.capitalize())
         s = Session()
         s.add(city_object)
