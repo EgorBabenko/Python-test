@@ -19,34 +19,18 @@ def all_picnics(datetime: dt.datetime = Query(default=None,
     """
     session = Session()
     picnics = session.query(Picnic)
+
     if datetime is not None:
         picnics = picnics.filter(Picnic.time == datetime)
     if not past:
         picnics = picnics.filter(Picnic.time >= dt.datetime.now())
 
-    picnics = picnics.offset(offset).limit(limit)
+    picnics = picnics.offset(offset).limit(limit).all()
 
-    return [
-        {
-            'id': picnic.id,
-            'city_id': picnic.city_id,
-            'city_name': session.query(City).filter(
-                City.id == picnic.city_id).first().name,
-            'time': picnic.time,
-            'users': [
-                {
-                    'id': pic.user.id,
-                    'name': pic.user.name,
-                    'surname': pic.user.surname,
-                    'age': pic.user.age
-                } for pic in session.query(PicnicRegistration).filter(PicnicRegistration.picnic_id == picnic.id).all()
-            ]
-
-        } for picnic in picnics
-    ]
+    return [PicnicOutput.from_orm(picnic) for picnic in picnics]
 
 
-@picnics_router.post('/', summary='Добавление пикника', tags=['picnic'], response_model=PicnicModel)
+@picnics_router.post('/', summary='Добавление пикника', tags=['picnic'], response_model=PicnicOutput)
 def picnic_add(picnic: RegisterPicnicModel):
     """
     Добавление нового пикника
@@ -66,7 +50,7 @@ def picnic_add(picnic: RegisterPicnicModel):
     picnic_object = Picnic(city_id=picnic.city_id, time=picnic.datetime)
     session.add(picnic_object)
     session.commit()
-    return PicnicModel.from_orm(picnic_object)
+    return PicnicOutput.from_orm(picnic_object)
 
 
 @picnics_router.post('/usersignup/', summary='Регистрация на пикник', tags=['picnic'], response_model=UserPicnicRegistrationOutput)

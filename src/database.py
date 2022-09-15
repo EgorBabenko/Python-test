@@ -59,6 +59,30 @@ class Picnic(Base):
     city_id = Column(Integer, ForeignKey('city.id'), nullable=False)
     time = Column(DateTime, nullable=False)
 
+    # Получение названия города, в котором проходит пикник
+    @property
+    def city_name(self):
+        session = Session()
+        return session.query(City).filter(City.id == self.city_id).first().name
+
+    # Получение списка объектов пользователей - участников пикника
+    @property
+    def users(self):
+        session = Session()
+
+        users = [
+            {
+                'id': pic.user.id,
+                'name': pic.user.name,
+                'surname': pic.user.surname,
+                'age': pic.user.age
+            } for pic in session.query(PicnicRegistration).filter(
+                PicnicRegistration.picnic_id == self.id).all()
+        ]
+
+        return users
+
+
 
     def __repr__(self):
         return f'<Пикник {self.id}>'
@@ -75,7 +99,7 @@ class PicnicRegistration(Base):
     picnic_id = Column(Integer, ForeignKey('picnic.id'), nullable=False)
 
     user = relationship('User', backref='picnics')
-    picnic = relationship('Picnic', backref='users')
+    picnic = relationship('Picnic', backref='guests')
 
     def __repr__(self):
         return f'<Регистрация {self.id}>'

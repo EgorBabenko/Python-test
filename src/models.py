@@ -2,7 +2,7 @@ from fastapi import Query
 from datetime import datetime as dt
 from pydantic import BaseModel
 from sqlalchemy.orm.collections import InstrumentedList
-from pydantic.class_validators import List
+from pydantic.class_validators import List, Union
 
 
 class RegisterUserRequest(BaseModel):
@@ -30,6 +30,7 @@ class RegisterPicnicModel(BaseModel):
 class PicnicModel(BaseModel):
     id: int
     city_id: int
+    city_name: str
     time: dt
     users: List[UserModel]
 
@@ -63,5 +64,9 @@ class PicnicOutput(BaseModel):
     city_id: int
     city_name: str
     time: dt
-    users: List[UserModel]
+    users: Union[List[UserModel], list]
+
+    class Config:
+        orm_mode = True
+
 
