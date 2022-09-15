@@ -25,10 +25,21 @@ def all_picnics(datetime: dt.datetime = Query(default=None,
 
 @picnics_router.post('/', summary='Picnic Add', tags=['picnic'])
 def picnic_add(picnic: RegisterPicnicModel):
+    session = Session()
+    # Проверка существования города
+    city = session.query(City).filter(City.id == picnic.city_id).first()
+    if not city:
+        raise HTTPException(status_code=400,
+                            detail='Города с этим id не существует')
+
+    # Проверка попытки регистрации в прошлом
+    if picnic.datetime < dt.datetime.now():
+        raise HTTPException(status_code=400,
+                            detail='Машину времени еще не изобрели')
+
     picnic_object = Picnic(city_id=picnic.city_id, time=picnic.datetime)
-    s = Session()
-    s.add(picnic_object)
-    s.commit()
+    session.add(picnic_object)
+    session.commit()
     return PicnicModel.from_orm(picnic_object)
 
 
@@ -36,24 +47,27 @@ def picnic_add(picnic: RegisterPicnicModel):
 def register_to_picnic(data: UserPicnicRegistration):
     session = Session()
     user = session.query(User).filter(User.id == data.user_id).first()
+
+    # Проверка существования пользователя
     if not user:
         raise HTTPException(status_code=400,
                             detail='Пользователя с этим id не существует')
     picnic = session.query(Picnic).filter(Picnic.id == data.picnic_id).first()
+
+    # Проверка существования пикника
     if not picnic:
         raise HTTPException(status_code=400,
                             detail='Пикника с этим id не существует')
 
+    # Проверка повторной регистрации
     repeat = session.query(PicnicRegistration).filter(PicnicRegistration.picnic_id == picnic.id,
                                                       PicnicRegistration.user_id == user.id).first()
-
     if repeat:
         raise HTTPException(status_code=400,
                             detail='Пользователь уже зарегестрирован')
 
     registration = PicnicRegistration(user_id=user.id,
                                       picnic_id=picnic.id)
-
     session.add(registration)
     session.commit()
 
