@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from routers.cities import cities_router
-from routers.users import users_router
-from routers.picnics import picnics_router
 
+from routers.cities import cities_router
+from routers.picnics import picnics_router
+from routers.users import users_router
 
 app = FastAPI()
 

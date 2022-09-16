@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Query
-
-from models import RegisterUserRequest, UserModel
-from database import Session, User
 from pydantic.class_validators import List
+
+from database import Session, User
+from models import RegisterUserRequest, UserModel
 
 users_router = APIRouter(prefix='/users')
 
 
-@users_router.get('/', summary='Список пользователей', tags=['users'], response_model=List[UserModel])
+@users_router.get('/', summary='Список пользователей',
+                  tags=['users'],
+                  response_model=List[UserModel])
 def users_list(min_age: int = Query(description='Минимальный возраст',
                                     default=None),
                max_age: int = Query(description='Максимальный возраст',
@@ -29,7 +31,9 @@ def users_list(min_age: int = Query(description='Минимальный возр
     return [UserModel.from_orm(user) for user in users]
 
 
-@users_router.post('/', summary='Создание пользователя', response_model=UserModel, tags=['users'])
+@users_router.post('/', summary='Создание пользователя',
+                   response_model=UserModel,
+                   tags=['users'])
 def register_user(user: RegisterUserRequest):
     """
     Регистрация пользователя

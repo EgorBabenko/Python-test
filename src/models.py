@@ -1,7 +1,7 @@
-from fastapi import Query
 from datetime import datetime as dt
+
+from fastapi import Query
 from pydantic import BaseModel
-from sqlalchemy.orm.collections import InstrumentedList
 from pydantic.class_validators import List, Union
 
 

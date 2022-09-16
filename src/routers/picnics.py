@@ -1,15 +1,22 @@
 import datetime as dt
-from fastapi import APIRouter, Query, HTTPException
-from database import Session, Picnic, PicnicRegistration, City, User
-from models import RegisterPicnicModel, PicnicModel, UserPicnicRegistration, UserPicnicRegistrationOutput, PicnicOutput
+
+from fastapi import APIRouter, HTTPException, Query
 from pydantic.class_validators import List
+
+from database import City, Picnic, PicnicRegistration, Session, User
+from models import (PicnicModel, PicnicOutput, RegisterPicnicModel,
+                    UserPicnicRegistration, UserPicnicRegistrationOutput)
 
 picnics_router = APIRouter(prefix='/picnics')
 
+pic_descr = 'Время пикника (по умолчанию не задано)'
 
-@picnics_router.get('/', summary='Список пикников', tags=['picnic'], response_model=List[PicnicOutput])
+
+@picnics_router.get('/', summary='Список пикников',
+                    tags=['picnic'],
+                    response_model=List[PicnicOutput])
 def all_picnics(datetime: dt.datetime = Query(default=None,
-                                              description='Время пикника (по умолчанию не задано)'),
+                                              description=pic_descr),
                 past: bool = Query(default=True,
                                    description='Включая уже прошедшие пикники'),
                 offset: int = 0,
@@ -30,7 +37,9 @@ def all_picnics(datetime: dt.datetime = Query(default=None,
     return [PicnicOutput.from_orm(picnic) for picnic in picnics]
 
 
-@picnics_router.post('/', summary='Добавление пикника', tags=['picnic'], response_model=PicnicOutput)
+@picnics_router.post('/', summary='Добавление пикника',
+                     tags=['picnic'],
+                     response_model=PicnicOutput)
 def picnic_add(picnic: RegisterPicnicModel):
     """
     Добавление нового пикника
@@ -53,7 +62,10 @@ def picnic_add(picnic: RegisterPicnicModel):
     return PicnicOutput.from_orm(picnic_object)
 
 
-@picnics_router.post('/usersignup/', summary='Регистрация на пикник', tags=['picnic'], response_model=UserPicnicRegistrationOutput)
+@picnics_router.post('/usersignup/',
+                     summary='Регистрация на пикник',
+                     tags=['picnic'],
+                     response_model=UserPicnicRegistrationOutput)
 def register_to_picnic(data: UserPicnicRegistration):
     """
     Регистрация пользователя на пикник
@@ -73,8 +85,9 @@ def register_to_picnic(data: UserPicnicRegistration):
                             detail='Пикника с этим id не существует')
 
     # Проверка повторной регистрации
-    repeat = session.query(PicnicRegistration).filter(PicnicRegistration.picnic_id == picnic.id,
-                                                      PicnicRegistration.user_id == user.id).first()
+    repeat = session.query(PicnicRegistration).filter(
+        PicnicRegistration.picnic_id == picnic.id,
+        PicnicRegistration.user_id == user.id).first()
     if repeat:
         raise HTTPException(status_code=400,
                             detail='Пользователь уже зарегестрирован')
