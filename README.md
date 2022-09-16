@@ -1,3 +1,23 @@
-## Что было сделано:
-1. Переименованы endpoints  соответствии со стандартами REST
-2. Изменены методы запросов (GET - получение информации, POST - добавление)
+## Локальный старт
+1. Клонируйте репозиторий:
+```angular2html
+git clone git@github.com:EgorBabenko/Python-test.git
+```
+2. В директории склонированного репозитория создайте и активируйте виртуальное окружение
+```angular2html
+python3 -m venv venv
+source venv/bin/activate
+```
+3. Установите зависимости:
+```angular2html
+pip install -r requirements.txt
+```
+4. Запуск приложения:
+```angular2html
+cd src/
+uvicorn main:app --reload
+```
+
+Документация API доступна по адресам:
+ - http://127.0.0.1:8000/redoc
+ - http://127.0.0.1:8000/doc
